@@ -1,0 +1,48 @@
+int bottom = 0;
+int top = 0;
+int passtheshold = 140;
+
+
+
+void main()
+{
+     
+    
+    while(1)
+      {
+        
+        printf("\n\n"); //Clears the screen
+        
+        bottom=analog(4);
+        top=analog(5);
+        
+        
+        //Block is all white whitehall
+        if (bottom<=passtheshold && top<=passtheshold  ) 
+          {
+            
+            printf("\n\n"); //Clears the screen
+            printf("Whitehall");
+            sleep(2.0);
+            
+         }
+        
+        
+        //Block is black on white Airport
+        if (bottom<=passtheshold && top>passtheshold  )
+          {
+            printf("\n\n"); //Clears the screen
+            printf("Airport");
+            sleep(2.0);
+        }
+        
+        //Block is white on blakc
+        if (bottom>passtheshold && top<passtheshold  )
+          {
+            printf("\n\n"); //Clears the screen
+            printf("Collins Ave");
+            sleep(2.0);
+            
+        }   
+    }  
+}

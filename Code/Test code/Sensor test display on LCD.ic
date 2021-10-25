@@ -1,0 +1,42 @@
+int li = 0;
+int lo = 0;
+int ri = 0;
+int ro = 0;
+
+void main()
+{
+    
+    printf("Truning the LEDs on");
+    bit_set(0x1026, 0x80); //Sets pin as output
+    bit_set(0x1000, 0x80); //Set pin High
+    // bit_clear(0x1000, 0x80); //Turn  
+    sleep(1.0);
+    
+    
+    while(1)
+      {
+        
+        printf("\n\n"); //Clears the screen
+        
+        li=analog(1);
+        lo=analog(0);
+        ri=analog(2);
+        ro=analog(3);
+        
+        
+        printf("lo=%d,",lo);
+        printf("li=%d,",li);
+        printf("ri=%d,",ri);
+        printf("ro=%d,",ro);
+        
+        
+        sleep(0.1);
+        
+        
+    }  
+    
+    
+    
+    
+    
+}

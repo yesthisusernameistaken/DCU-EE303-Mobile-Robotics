@@ -1,0 +1,349 @@
+
+//-----------------------Code used during competition--------------------------
+
+//To do list:
+//Reduce the oscillation caused when following a the line. (This is causing most errors)
+//Add calibration routine for sensors
+//Remove all possible time based actions, these need to be adjusted depending on battery voltage and can cause errors
+
+//Win
+//Then takeover world
+
+
+//For line sensors
+int l_o = 0;
+int l_i = 0;
+int r_o = 0;
+int r_i = 0;
+
+
+//For passenger sensors
+int bottom = 0;
+int top = 0;
+
+//Threshold for line sensors
+int threshold_i = 180;  //Inner sensors
+int threshold_o = 150;	//Outer sensors
+
+//Pins used for driving motors
+int leftmotor = 3;
+int rightmotor = 0;
+
+//Threshold for Passenger Sensors
+int passtheshold = 140;
+
+//Variables used for turning left or right at end of straight
+int whiteturn = 0;
+int colturn = 0;
+int airturn = 0;
+int junc = 0;
+int sensorc = 0;
+int leftt = 0;
+
+//Speed for turning
+int tspeed = 50;
+
+//Speed for motors
+int lspeed = 40;	//These need to be changed based on battery voltage
+int rspeed = 42;
+
+int whilebeep = 1;
+
+//Variables used to store what direction was taken
+int tleft = 1;
+int wtleft = 1;
+int cright = 1;
+int aright = 1;
+
+void main(){
+    
+    while(digital(9)){}		//Wait for micro switch to be pressed then released
+    while(!digital(9)){}
+	
+    printf("Greetings,master");
+    
+    beep();
+    mainroutines();
+    
+}
+void beepf(){
+    while(whilebeep==1){
+        tone(500.00,0.2);
+        tone(200.00,0.2);
+    }
+}
+
+void mainroutines(){
+    while(1)
+      {
+        
+        
+        
+        //Stop at Taxi rank after depositing passenger
+        if (sensorc==4 && whiteturn>=1){
+            
+            ao();
+            main();
+        }
+        
+        if (sensorc==5 && colturn>=1){
+            ao();
+            main();
+        }
+        if (sensorc==5 && airturn>=1){
+            ao();
+            main();
+        }
+        
+        //Read Line sensors
+        l_i=analog(1);
+        l_o=analog(0);
+        r_i=analog(2);
+        r_o=analog(3);
+        
+        //Read Passenger Sensors
+        bottom=analog(4);
+        top=analog(5);
+        
+        // Line following rootine
+        
+        
+        //Both inside sensors see nothing so continue straight
+        if (l_i>=threshold_i && r_i>=threshold_i)
+          {
+            motor(leftmotor, lspeed);
+            motor(rightmotor, rspeed);            
+        }
+        // Righ inner sees white line
+        if (l_i>=threshold_i && r_i<=threshold_i && l_o>=threshold_o )
+          {
+            
+            motor(leftmotor, lspeed);
+            off(rightmotor);
+        }
+        
+        
+        // Left inner sees white line
+        if (l_i<=threshold_i && r_i>=threshold_i && r_o>=threshold_o)
+          {
+            
+            off(leftmotor);
+            motor(rightmotor, rspeed); 
+        }
+        
+        
+                
+        
+        //Slow robot down for straight bit where it gets passenger
+        if (leftt==1 && sensorc==1){
+            rspeed=35; 		//These need to be changed based on battery voltage
+            lspeed=35;
+        }
+        
+        //Speed up after doing one of the turns
+        if (whiteturn>=1 || colturn>=1 || leftt==2 || airturn>=1){
+            rspeed=48;		//These need to be changed based on battery voltage
+            lspeed=45;
+        }
+        
+        
+        
+        
+        
+        
+        
+        //Decision time, choose between 3 possible destinations and make right turn
+        //The turn is partially time based: The mobot turn blindly for a set amount of time, then starts looking for the line
+		//A while loop is used to keep turning and check for the line. Once it has seen the line, the mobot goes back to following the line.
+		//This avoid the problem of having the mobot count one line multiple times.  
+        if (sensorc==2){
+            
+            
+            //Block is all white Whitehall
+            if (bottom<passtheshold && top<passtheshold && whiteturn<=0 && colturn==0)  
+              {
+                
+                
+                printf("\n\n"); //Clears the screen
+                printf("Whitehall");
+                whiteturn = whiteturn + 1;
+                
+                motor(leftmotor, -tspeed);
+                motor(rightmotor, tspeed);
+                sleep(0.5);                  //Time that needs to be adjusted depending on speed
+			
+                while(wtleft==1){
+                    r_i=analog(2);            //Read sensor  
+                    if (r_i<=threshold_i){    //If right inside sensor sees line, exit while loop
+                        wtleft = 0;
+                    }
+                }
+                
+                ao();  
+                
+            }
+            
+            
+            //Block is black on white Collins
+            if (bottom<passtheshold && top>passtheshold && colturn<=0 && whiteturn==0)
+              {
+                
+                printf("\n\n"); //Clears the screen
+                printf("Collins Ave");
+                colturn = colturn + 1;
+                
+                motor(leftmotor, tspeed);
+                motor(rightmotor, -tspeed);
+                sleep(0.5);                  //Time that needs to be adjusted depending on speed
+                
+                while(cright==1){
+                    l_i=analog(1);            //Read sensor  
+                    if (l_i<=threshold_i){    //If right inside sensor sees line, exit while loop
+                        cright = 0;
+                    }
+                }
+                
+                ao();  
+                
+                
+                
+            }
+            
+            
+            //Block is white on black Airport
+            if (bottom>passtheshold && top<passtheshold && airturn==0)
+              {  
+                ao();
+                printf("\n\n"); //Clears the screen
+                printf("Airport");
+                airturn = airturn + 1;
+                
+                sleep(0.5);
+                motor(leftmotor, tspeed);
+                motor(rightmotor, -tspeed);
+                sleep(1.1);                  //Time that needs to be adjusted depending on speed
+                
+                
+                while(aright==1){
+                    l_i=analog(1);            //Read sensor  
+                    if (l_i<=threshold_i){    //If right inside sensor sees line, exit while loop
+                        aright = 0;
+                    }
+                }
+                
+                ao();
+                start_process(beepf(),1);		//Start siren
+                
+            }
+        }
+        
+        
+        
+        
+        //Turn left after picking up passenger for airport
+        if (sensorc==3 && airturn==1 && leftt==1){
+            printf("\n\n");              //Clear Screen
+            printf("Left turn detected");
+            leftt = leftt + 1;
+            
+            ao();
+            sleep(0.5);
+            motor(leftmotor, -tspeed);
+            motor(rightmotor, tspeed);
+            
+            sleep(0.2);
+            
+            tleft=1;
+            
+            while(tleft==1){
+                r_i=analog(2);            //Read sensor  
+                if (r_i<=threshold_i){    //If right inside sensor sees line, exit while loop
+                    tleft = 0;
+                }
+            }
+            ao();
+            
+            
+            
+        }
+        
+        //If arrived at airport, do a U turn, then spin motor to kick passenger off
+        if (sensorc==4 && leftt==2){
+            leftt=leftt+1;
+            ao();
+            sleep(0.5);
+            motor(leftmotor, 54);
+            motor(rightmotor, -55);
+            aright = 1;
+            
+            sleep(0.7);
+            
+            while(aright==1){
+                l_i=analog(1);            //Read sensor  
+                if (l_i<=threshold_i){    //If right inside sensor sees line, exit while loop
+                    aright = 0;
+                }
+            }
+            
+            ao();
+            
+            ao();
+            motor(2,100);  //Spins motor used to kick passenger off 
+            sleep(2.0);
+            off(2);
+            whilebeep=0;	//Stops the beeping
+        }
+        
+        
+        
+        
+        //All sensors see white, counted as a junction
+        if (l_i<=threshold_i && l_o<=threshold_o && r_i<=threshold_i && r_o<=threshold_o )
+          {
+            
+            beep();
+            junc = junc + 1;
+            printf("\n\n");                //Clear Screen
+            printf("Junction = %d",junc); // Print the number of junctions passed
+            mainroutines();
+        }
+        //If left two sensors see white, turn left 
+        if (l_o<=threshold_o && l_i<=threshold_i && r_i>=threshold_i && r_o>= threshold_o && sensorc==1 && leftt<1){
+            
+            printf("\n\n");              //Clear Screen
+            printf("Left turn detected");
+            
+            leftt = leftt + 1;
+            ao();
+            sleep(0.5);
+            motor(leftmotor, 0);
+            motor(rightmotor, tspeed);
+            sleep(0.8);     //Time that needs to be adjusted depending on speed
+            
+            while(tleft==1){
+                r_i=analog(2);            //Read sensor  
+                if (r_i<=threshold_i){    //If right inside sensor sees line, exit while loop
+                    tleft = 0;
+                }
+            }
+            
+            ao();            
+        }
+        
+		
+		
+		
+        //Counts 1 for each junction, removing duplicates
+        if (junc>0) {
+            sensorc = sensorc + 1;
+            junc = 0;
+            printf("\n\n");
+            printf("sensorc = %d",sensorc);
+        }        
+        
+        
+    }
+}
+
+
+

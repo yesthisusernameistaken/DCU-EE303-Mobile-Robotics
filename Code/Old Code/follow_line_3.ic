@@ -1,0 +1,71 @@
+int l_o = 0;
+int l_i = 0;
+int r_o = 0;
+int r_i = 0;
+int threshold = 240;
+int leftmotor = 0;
+int rightmotor = 1;
+
+void main(){
+
+while(1)
+  {
+    if (start_button())
+      {
+        printf("Greetings, master");
+        beep();  
+        
+        
+        l_o=analog(0);
+        l_i=analog(1);
+        r_o=analog(2);
+        r_i=analog(3);
+        
+        
+        if (l_i>=threshold && l_o>=threshold && r_i>=threshold && r_o>=threshold )
+          {
+            
+            fd(leftmotor);
+            fd(rightmotor);
+            
+        }
+        if (l_i>=threshold && l_o>=threshold && r_i<=threshold && r_o>=threshold )
+          {
+            
+            fd(leftmotor);
+            off(rightmotor);
+            
+        }
+        if (l_i>=threshold && l_o>=threshold && r_i<=threshold && r_o<=threshold )
+          {
+            
+            fd(leftmotor);
+            off(rightmotor);
+            
+        }
+        if (l_i>=threshold && l_o<=threshold && r_i>=threshold && r_o>=threshold )
+          {
+            
+            off(leftmotor);
+            fd(rightmotor);
+            
+        }
+        if (l_i<=threshold && l_o<=threshold && r_i>=threshold && r_o>=threshold )
+          {
+            
+            off(leftmotor);
+            fd(rightmotor);
+            
+        }
+        if (l_i<=threshold && l_o<=threshold && r_i<=threshold && r_o<=threshold )
+          {
+            
+            ao(rightmotor);
+            ao(leftmotor);
+            
+        }
+        
+    }
+    
+}
+}

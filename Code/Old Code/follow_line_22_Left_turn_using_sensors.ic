@@ -1,0 +1,314 @@
+
+
+// -------------------- Good code ------------------------------------------
+//Left turn after passenger pcikup uses two motors
+//Uses sensors for left turn
+//Voltage at 10.68V
+
+
+//Ideas for future
+//Turn using sensor (turn past line and then turn back waiting for sensor to be triggered)
+// Or turn for a small ammount, then have a while loop checking for sensor
+
+//Win
+//Then takeover world
+
+
+//For line sensors
+int l_o = 0;
+int l_i = 0;
+int r_o = 0;
+int r_i = 0;
+
+
+//For passenger sensors
+int bottom = 0;
+int top = 0;
+
+//Threshhold for line sensors
+int threshold_i = 190;
+int threshold_o = 155;
+int leftmotor = 3;
+int rightmotor = 0;
+
+
+//Threshhold for Passenger Sensors
+int passtheshold = 140;
+
+//For turning left or right at end of straight
+int whiteturn = 0;
+int colturn = 0;
+int airturn = 0;
+
+int junc = 0;
+int sensorc = 0;
+int leftt = 0;
+
+//Speed for turning
+int tspeed = 55;
+
+//Speed for motors
+int lspeed = 40;
+int rspeed = 40;
+
+int whilebeep = 1;
+
+int tleft = 1;
+
+
+
+void main(){
+    
+    while(digital(9)){}
+    while(!digital(9)){}
+    //kill_process(beepf());
+    
+    // bit_set(0x1026, 0x80); //Sets pin 9 as output
+    //bit_set(0x1000, 0x80); //Set pin High
+    
+    printf("Greetings,master");
+    
+    beep(); 
+    imtiredofthisshit();
+    
+}
+void beepf(){
+    while(whilebeep==1){
+        beep();
+    }
+}
+
+void imtiredofthisshit(){
+    while(1)
+      {
+        
+        
+        
+        //Stop at Taxi rank after depositing passenger
+        if (sensorc==4 && whiteturn>=1){
+            
+            ao();
+            main();
+        }
+        
+        if (sensorc==5 && colturn>=1){
+            ao();
+            main();
+        }
+        if (sensorc==5 && airturn>=1){
+            ao();
+            main();
+        }
+        
+        
+        //Sound siren if going to the airport
+        /*  if (airturn==1){
+        tone(500.00,0.2);
+        tone(200.00,0.2);
+        }*/
+        
+        /*if (airturn==1){
+            beep();
+        }
+        */
+        
+        
+        //Read Line sensors
+        l_i=analog(1);
+        l_o=analog(0);
+        r_i=analog(2);
+        r_o=analog(3);
+        
+        //Read Passenger Sensors
+        bottom=analog(4);
+        top=analog(5);
+        
+        
+        
+        
+        // Line following rootine
+        
+        
+        //Both inside sensors see nothing so continue straight
+        if (l_i>=threshold_i && r_i>=threshold_i)
+          {
+            
+            motor(leftmotor, lspeed);
+            motor(rightmotor, rspeed);            
+        }
+        // Righ inner sees white line
+        if (l_i>=threshold_i && r_i<=threshold_i && l_o>=threshold_o )
+          {
+            
+            motor(leftmotor, lspeed);
+            off(rightmotor);
+        }
+        
+        
+        // Left inner sees white line
+        if (l_i<=threshold_i && r_i>=threshold_i && r_o>=threshold_o)
+          {
+            
+            off(leftmotor);
+            motor(rightmotor, rspeed); 
+        }
+        
+        
+        //Change speeds during straigh bit and after        
+        
+        //Slow robot down for straight bit where it gets passenger
+        if (leftt==1 && sensorc==1){
+            rspeed=35;
+            lspeed=35;
+        }
+        
+        //Speed up after doing one of the turns
+        if (whiteturn>=1 || colturn>=1 || leftt==2 ){
+            rspeed=40;
+            lspeed=40;
+        }
+        
+        
+        
+        
+        
+        
+        
+        //Descision time, choose between 3 possible destinations
+        
+        if (sensorc==2){
+            
+            
+            //Block is all white whitehall
+            if (bottom<passtheshold && top<passtheshold && whiteturn<=0 && colturn==0)  
+              {
+                
+                
+                printf("\n\n"); //Clears the screen
+                printf("Whitehall");
+                
+                
+                motor(leftmotor, -tspeed);
+                motor(rightmotor, tspeed);
+                sleep(0.5);                  //Time that needs to be adjusted depending on speed
+                ao();
+                whiteturn = whiteturn + 1;    
+            }
+            
+            
+            //Block is black on white Collins
+            if (bottom<passtheshold && top>passtheshold && colturn<=0 && whiteturn==0)
+              {
+                
+                printf("\n\n"); //Clears the screen
+                printf("Collins Ave");
+                
+                
+                motor(rightmotor, -tspeed);
+                motor(leftmotor, tspeed);
+                sleep(0.4);                  //Time that needs to be adjusted depending on speed
+                ao();
+                colturn = colturn + 1;
+                
+            }
+            
+            
+            //Block is white on black
+            if (bottom>passtheshold && top<passtheshold && airturn==0)
+              {  
+                ao();
+                printf("\n\n"); //Clears the screen
+                printf("Airport");
+                sleep(0.5);
+                motor(leftmotor, 54);
+                motor(rightmotor, -55);
+                sleep(1.0);                  //Time that needs to be adjusted depending on speed
+                ao();
+                airturn = airturn + 1;
+                start_process(beepf(),1);
+                
+            }
+        }
+        
+        
+        
+        
+        //Turn left after picking up passenger for airport
+        if (sensorc==3 && airturn==1 && leftt==1){
+            printf("\n\n");              //Clear Screen
+            printf("Left turn detected");
+            leftt = leftt + 1;
+            ao();
+            sleep(0.5);
+            motor(leftmotor, -tspeed);
+            motor(rightmotor, tspeed);
+            sleep(0.4);                  //Time that needs to be adjusted depending on speed
+            
+        }
+        
+        //If arrived at airport, do a U turn, then spin motor to kick passenger off
+        if (sensorc==4 && leftt==2){
+            leftt=leftt+1;
+            ao();
+            sleep(0.5);
+            motor(leftmotor, 54);
+            motor(rightmotor, -55);
+            sleep(1.2); 
+            ao();
+            motor(2,100);  
+            sleep(2.0);
+            off(2);
+            whilebeep=0;
+        }
+        
+        
+        
+        
+        //All sensors see white, counted as a junction
+        if (l_i<=threshold_i && l_o<=threshold_o && r_i<=threshold_i && r_o<=threshold_o )
+          {
+            
+            beep();
+            junc = junc + 1;
+            printf("\n\n");                //Clear Screen
+            printf("Junction = %d",junc); // Print the number of junctions passed
+            imtiredofthisshit();
+        }
+        //If left two sensors see white, turn left 
+        if (l_o<=threshold_o && l_i<=threshold_i && r_i>=threshold_i && r_o>= threshold_o && sensorc==1 && leftt<1){
+            
+            printf("\n\n");              //Clear Screen
+            printf("Left turn detected");
+            
+            leftt = leftt + 1;
+            ao();
+            sleep(0.5);
+            motor(leftmotor, 0);
+            motor(rightmotor, tspeed);
+            sleep(0.8);     //Time that needs to be adjusted depending on speed
+            //-----------------------------------------------------------------------
+            
+            while(tleft==1){
+                r_i=analog(2);            //Read sensor  
+                if (r_i<=threshold_i){    //If right inside sensor sees line, exite while loop
+                    tleft = 0;
+                }
+            }
+            
+            ao();            
+        }
+        
+        //Counts 1 for each junction, removing duplicates
+        if (junc>0) {
+            sensorc = sensorc + 1;
+            junc = 0;
+            printf("\n\n");
+            printf("sensorc = %d",sensorc);
+        }        
+        
+        
+    }
+}
+
+
+

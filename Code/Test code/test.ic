@@ -1,0 +1,16 @@
+void main ()
+{
+   while (1)
+   {
+      printf("Begin push START--end push STOP!");
+      sleep(2.0);
+      while (!start_button())
+      {
+         printf("Please hit the Start Button.");
+         sleep(0.3);
+      }
+      fd(3);
+      while (!stop_button());
+         off(3);
+   }
+}

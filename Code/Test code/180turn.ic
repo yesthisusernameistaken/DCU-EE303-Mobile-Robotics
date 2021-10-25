@@ -1,0 +1,52 @@
+ //Ideas for future
+//Reduce speed on straight after pickup
+//Turn using sensor (turn past line and then turn back waiting for sensor to be triggered)
+//Win
+//Then takeover world
+//Back up for a second after second junction
+
+
+//For line sensors
+int l_o = 0;
+int l_i = 0;
+int r_o = 0;
+int r_i = 0;
+
+
+
+//For passenger sensors
+int bottom = 0;
+int top = 0;
+
+//Threshhold for line sensors
+int threshold = 190;
+int leftmotor = 3;
+int rightmotor = 0;
+
+
+//Threshhold for Passenger Sensors
+int passtheshold = 140;
+
+//For turning left or right at end of straight
+int whiteturn = 0;
+int colturn = 0;
+
+int junc = 0;
+int sensorc = 0;
+int leftt = 0;
+
+//Speed for turning
+int tspeed = 60;
+
+//Speed for motors
+int lspeed = 54;
+int rspeed = 55;
+void main(){
+
+            ao();
+            sleep(0.5);
+            motor(leftmotor, 54);
+            motor(rightmotor, -55);
+            sleep(1.6);                  //Time that needs to be adjusted depending on speed
+            ao();
+}

@@ -1,0 +1,254 @@
+//Ideas for future
+//Reduce speed on straight after pickup
+//Turn using sensor (turn past line and then turn back waiting for sensor to be triggered)
+//Win
+//Then takeover world
+//Back up for a second after second junction
+
+
+//For line sensors
+int l_o = 0;
+int l_i = 0;
+int r_o = 0;
+int r_i = 0;
+
+
+
+//For passenger sensors
+int bottom = 0;
+int top = 0;
+
+//Threshhold for line sensors
+int threshold = 190;
+int leftmotor = 3;
+int rightmotor = 0;
+
+
+//Threshhold for Passenger Sensors
+int passtheshold = 140;
+
+//For turning left or right at end of straight
+int whiteturn = 0;
+int colturn = 0;
+int airturn = 0;
+
+int junc = 0;
+int sensorc = 0;
+int leftt = 0;
+
+//Speed for turning
+int tspeed = 60;
+
+//Speed for motors
+int lspeed = 54;
+int rspeed = 55;
+
+
+void main(){
+    
+    // bit_set(0x1026, 0x80); //Sets pin 9 as output
+    //bit_set(0x1000, 0x80); //Set pin High
+    
+    printf("Greetings,master");
+    
+    beep(); 
+    imtiredofthisshit();
+    
+}
+
+void imtiredofthisshit(){
+    while(1)
+      {
+        
+        
+        
+        //Stop at Taxi rank after depositing passenger
+        if (sensorc==4 && whiteturn>=1){
+            
+            ao();   
+        }
+        
+        if (sensorc==5 && colturn>=1){
+            ao();
+         }
+         if (sensorc==5 && airturn>=1){
+            ao();
+         }
+
+        
+        
+        //Read Line sensors
+        l_i=analog(1);
+        l_o=analog(0);
+        r_i=analog(2);
+        r_o=analog(3);
+        
+        //Read Passenger Sensors
+        bottom=analog(4);
+        top=analog(5);
+        
+        
+        
+        
+        
+        //Both inside sensors see nothing so continue straight
+        if (l_i>=threshold && r_i>=threshold)
+          {
+            
+            motor(leftmotor, lspeed);
+            motor(rightmotor, rspeed);            
+        }
+        if (l_i>=threshold && r_i<=threshold)
+          {
+            
+            motor(leftmotor, lspeed);
+            off(rightmotor);
+            
+        }
+        
+        if (l_i<=threshold && r_i>=threshold)
+          {
+            
+            off(leftmotor);
+            motor(rightmotor, rspeed); 
+            
+        }
+        
+        //Slow robot down for straight bit where it gets passenger
+        if (leftt==1 && sensorc==1){
+            rspeed=45;
+            lspeed=45;
+        }
+        
+        //Speed up after doing one of the turns
+        if (whiteturn>=1 || colturn>=1 || leftt==2 ){
+            rspeed=55;
+            lspeed=54;
+        }
+        
+        
+        
+        
+        
+
+        
+//Stops at top junction and displays destination
+        if (sensorc==2){
+            
+          
+            //Block is all white whitehall
+            if (bottom<passtheshold && top<passtheshold && whiteturn<=0 && colturn==0)  
+              {
+                
+               
+                printf("\n\n"); //Clears the screen
+                printf("Whitehall");
+                
+                
+                motor(leftmotor, -tspeed);
+                motor(rightmotor, tspeed);
+                sleep(0.5);                  //Time that needs to be adjusted depending on speed
+                ao();
+                whiteturn = whiteturn + 1;    
+            }
+            
+            
+            //Block is black on white Collins
+            if (bottom<passtheshold && top>passtheshold && colturn<=0 && whiteturn==0)
+              {
+               
+                printf("\n\n"); //Clears the screen
+                printf("Collins Ave");
+                
+               
+                motor(rightmotor, -tspeed);
+                motor(leftmotor, tspeed);
+                sleep(0.4);                  //Time that needs to be adjusted depending on speed
+                ao();
+                colturn = colturn + 1;
+                
+            }
+            
+            
+            //Block is white on black
+            if (bottom>passtheshold && top<passtheshold && airturn==0)
+              {  
+                ao();
+                printf("\n\n"); //Clears the screen
+                printf("Airport");
+                sleep(0.5);
+                motor(leftmotor, 54);
+                motor(rightmotor, -55);
+                sleep(1.5);                  //Time that needs to be adjusted depending on speed
+                ao();
+                airturn = airturn + 1;
+
+            }
+        }
+        
+        
+        if (sensorc==3 && airturn==1 && leftt==1){
+              printf("\n\n");              //Clear Screen
+            printf("Left turn detected");
+            leftt = leftt + 1;
+            ao();
+            sleep(0.5);
+            off(leftmotor);
+            motor(rightmotor, tspeed);
+            sleep(1.5);                  //Time that needs to be adjusted depending on speed
+            
+        }
+        
+        if (sensorc==4 && leftt==2){
+            leftt=leftt+1;
+            ao();
+            sleep(0.5);
+            motor(leftmotor, 54);
+            motor(rightmotor, -55);
+            sleep(1.5); 
+            ao();
+            motor(2,100);  
+            sleep(2.0);
+            off(2);
+        }
+        
+        
+        
+        
+        //All sensors see white, counted as a junction
+        if (l_i<=threshold && l_o<=threshold && r_i<=threshold && r_o<=threshold )
+          {
+            
+            beep();
+            junc = junc + 1;
+            printf("\n\n");                //Clear Screen
+            printf("Junction = %d",junc); // Print the number of junctions passed
+            imtiredofthisshit();
+        }
+        //If left two sensors see white, turn left 
+        if (l_o<=threshold && l_i<=threshold && r_i>=threshold && r_o>=threshold && sensorc==1 && leftt<1){
+            
+            printf("\n\n");              //Clear Screen
+            printf("Left turn detected");
+            
+            leftt = leftt + 1;
+            ao();
+            sleep(0.5);
+            off(leftmotor);
+            motor(rightmotor, tspeed);
+            sleep(1.6);                  //Time that needs to be adjusted depending on speed
+            ao();
+        }
+        
+        //Counts 1 for each junction, removing duplicates
+        if (junc>0) {
+            sensorc = sensorc + 1;
+            junc = 0;
+            printf("\n\n");
+            printf("sensorc = %d",sensorc);
+        }        
+        
+        
+    }
+}
+

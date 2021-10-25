@@ -1,0 +1,50 @@
+int l_o = 0;
+int l_i = 0;
+int r_o = 0;
+int r_i = 0;
+int threshold = 0;
+int leftmotor = 0;
+int rightmotor = 1;
+
+void main()
+
+    while(1)
+      {
+        if (start_button())
+          {
+            printf("Greetings, master");
+            beep();  
+            
+            fd(leftmotor);
+            fd(rightmotor);
+            
+            l_o=analog(0);
+            l_i=analog(1);
+            r_o=analog(2);
+            r_i=analog(3);
+            
+            /* left turn until l_i>=threshold_dark*/
+            if (l_i <= threshold)
+              {
+               while (l_i <= threshold){
+                 stop(leftmotor);
+                             }
+              }
+            /* Rightturn until r_i>=threshold_dark*/
+            if (r_i <= threshold)
+              {
+               while (r_i <= threshold){
+                 stop(rightmotor);
+                             }
+
+        }
+           /*junction procedure*/
+            if (l_i<=threshold && l_o<=threshold && r_i<=threshold && r_o<=threshold )
+              {
+                
+             stop(rightmotor) && stop(leftmotor);
+              
+          }
+            
+     
+ }

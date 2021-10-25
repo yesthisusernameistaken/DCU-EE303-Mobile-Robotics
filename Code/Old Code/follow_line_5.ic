@@ -1,0 +1,56 @@
+int l_o = 0;
+int l_i = 0;
+int r_o = 0;
+int r_i = 0;
+int threshold = 220;
+int leftmotor = 3;
+int rightmotor = 0;
+
+void main(){
+    
+    bit_set(0x1026, 0x80); //Sets pin as output
+    bit_set(0x1000, 0x80); //Set pin High
+    
+    printf("Greetings,master");
+    beep(); 
+    
+    while(1)
+      {
+        
+        
+        l_i=analog(1);
+        l_o=analog(0);
+        r_i=analog(2);
+        r_o=analog(3);
+        
+        
+        if (l_i>=threshold && r_i>=threshold)
+          {
+            
+            motor(leftmotor, 50);
+            motor(rightmotor, 50);            
+        }
+        if (l_i>=threshold && r_i<=threshold)
+          {
+            
+            motor(leftmotor, 50);
+            off(rightmotor);
+            
+        }
+        
+        if (l_i<=threshold && r_i>=threshold)
+          {
+            
+            off(leftmotor);
+            motor(rightmotor, 50); 
+            
+        }
+        if (l_i<=threshold && l_o<=threshold && r_i<=threshold && r_o<=threshold )
+          {
+            //ao();
+            beep();
+        }
+        
+    }
+    
+}

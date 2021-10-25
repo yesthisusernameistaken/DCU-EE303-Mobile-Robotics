@@ -1,0 +1,37 @@
+int b = 0;
+int t = 0;
+
+
+void main()
+{
+    
+    printf("Turning the LEDs on");
+    bit_set(0x1026, 0x80); //Sets pin as output
+    bit_set(0x1000, 0x80); //Set pin High
+    // bit_clear(0x1000, 0x80); //Turn  
+    sleep(1.0);
+    
+    
+    while(1)
+      {
+        
+        printf("\n\n"); //Clears the screen
+        
+        b=analog(4);
+        t=analog(5);
+        
+        
+        printf("t=%d,",t);
+        printf("b=%d,",b);
+        
+        
+        sleep(0.1);
+        
+        
+    }  
+    
+    
+    
+    
+    
+}

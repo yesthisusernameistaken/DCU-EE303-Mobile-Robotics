@@ -1,0 +1,27 @@
+
+void main()
+{
+
+	printf("Forwards for 2 sec\n");
+	motor(0,50);
+	motor(3,-50);
+
+sleep(2.0);	//Pause for 2 seconds
+ao();		//Turn off both motors
+
+	printf("Back for 2 sec\n");
+	motor(0,-50);
+	motor(3,50);
+
+sleep(2.0);
+ao();
+
+	printf("Turn for 2 sec");
+	motor(0,50);
+	motor(3,50);
+
+sleep(2.0);
+ao();
+
+
+}

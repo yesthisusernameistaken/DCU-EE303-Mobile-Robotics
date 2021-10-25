@@ -1,0 +1,109 @@
+int l_o = 0;
+int l_i = 0;
+int r_o = 0;
+int r_i = 0;
+int threshold = 220;
+int leftmotor = 3;
+int rightmotor = 0;
+
+int sensorc = 0;
+
+void main(){
+    
+    bit_set(0x1026, 0x80); //Sets pin as output
+    bit_set(0x1000, 0x80); //Set pin High
+    
+    printf("Greetings,master");
+    beep(); 
+    
+    while(1)
+      {
+        
+        
+        l_i=analog(1);
+        l_o=analog(0);
+        r_i=analog(2);
+        r_o=analog(3);
+        
+        
+        if (l_i>=threshold && r_i>=threshold)
+          {
+            printf("\n\n");
+            motor(leftmotor, 55);
+            motor(rightmotor, 55);            
+        }
+        if (l_i>=threshold && r_i<=threshold)
+          {
+            printf("\n\n");
+            motor(leftmotor, 55);
+            off(rightmotor);
+            
+        }
+        
+        if (l_i<=threshold && r_i>=threshold)
+          {
+            printf("\n\n");
+            off(leftmotor);
+            motor(rightmotor, 55); 
+            
+        }
+        
+        //If left two sensors see white 
+        if (l_o<=threshold && l_i<=threshold && r_i>=threshold && r_o>=threshold){
+            
+            printf("\n\n"); //Clear Screen
+            printf("Left turn detected");
+            
+            ao();
+            sleep(1.0);
+            
+            off(leftmotor);
+            motor(rightmotor, 55);
+            
+            sleep(1.7);
+            
+            ao();
+            
+            
+            /*
+            //As long as senso 2 has not seen a white line twice, it runs the loop
+            while(sensorc < 2){
+            off(leftmotor);
+            motor(rightmotor, 55);}
+            //Counts how many times the right inner sensor sees a white line
+            if(r_i<=threshold){
+            sensorc = sensorc + 1; }
+
+            beep();  
+            */
+            
+        }  
+        
+        
+        //If all sensors see white
+        if (l_i<=threshold && l_o<=threshold && r_i<=threshold && r_o<=threshold)
+          {
+            //ao();
+            beep();
+            
+        }
+        
+        
+        
+    }
+    
+}
+
+
+
+/*
+ if (sensorc = 2){
+            makesound();
+            }
+
+
+
+void makesound()
+{
+beep();    
+}*/

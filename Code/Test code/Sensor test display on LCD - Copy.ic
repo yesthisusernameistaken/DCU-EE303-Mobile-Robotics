@@ -1,0 +1,92 @@
+Progress Report - Week 2
+
+Design Decisions:
+
+1. It was decided that the initial chassis was too wide to manouvere around the course. Hence a new design was brought upon, where the chassis' width was decreased.
+
+2. Four light sensors will be placed underneath at the front of the chassis in order to read the white line in which the robot must follow. Two of these will be inner sensors, with one of each being placed outside the white line. The other two outer sensors will each be placed outside the inner sensors.
+
+3. The battery and the handyboard will be placed atop the chassis , directly above the front axles. This is to give the wheels more traction and to reduce the amount of weight on the rear of the chassis.
+
+4. Less parts were used in the redesign of the chassis while also strengthening its structure. This was done to decrease the chassis' weight.
+
+Problems:
+
+1. A problem arose when selecting a threshold value for the light sensors. The readings for black and white on the LDR's were very close together, which resulted in inconsistency in the behaviour of the robot.
+
+2. The weight when adding extra parts onto the chassis was increased, which resulted in the sensor housing being dragged and hence causing friction along the ground.
+
+3. The sensor configuration had to be figured out.
+
+4. It was difficult to find out how the light sensors reacted to each possible combination of sensor inputs.
+
+Solutions:
+
+1. To resolve the problem with the light sensors, some of the heat shrink tubing was removed around each LED, until a red dot was visible on the ground. This meant that more light was reflected back to the sensors when going over the white line.
+
+2. To resolve the problem with the sensor housing, a thin strip of lego was removed which was placed around the sensor housing, in order to increase the height in which it was placed above the ground. The threshold values then had to be changed because of this height difference.
+
+3. A truth table was created so that each possible state could be visualised.
+
+Plans for Next Week:
+
+1. Create a code which will allow the light sensor to recognise and turn at a junction.
+
+Code:
+
+int l_o = 0;
+int l_i = 0;
+int r_o = 0;
+int r_i = 0;
+int threshold = 220;
+int leftmotor = 3;
+int rightmotor = 0;
+
+void main(){
+    
+    bit_set(0x1026, 0x80); //Sets pin as output
+    bit_set(0x1000, 0x80); //Set pin High
+    
+    printf("Greetings,master");
+    beep(); 
+    
+    while(1)
+      {
+        
+        
+        l_i=analog(1);
+        l_o=analog(0);
+        r_i=analog(2);
+        r_o=analog(3);
+        
+        
+        if (l_i>=threshold && r_i>=threshold)
+          {
+            
+            motor(leftmotor, 50);
+            motor(rightmotor, 50);            
+        }
+        if (l_i>=threshold && r_i<=threshold)
+          {
+            
+            motor(leftmotor, 50);
+            off(rightmotor);
+            
+        }
+        
+        if (l_i<=threshold && r_i>=threshold)
+          {
+            
+            off(leftmotor);
+            motor(rightmotor, 50); 
+            
+        }
+        if (l_i<=threshold && l_o<=threshold && r_i<=threshold && r_o<=threshold )
+          {
+            //ao();
+            beep();
+        }
+        
+    }
+    
+}
